@@ -1,31 +1,40 @@
-using Microsoft.AspNetCore.Mvc;
-using ProyectoInscripciones.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Practica3_Progra3_CASO2.Models;
+using Practica3_Progra3_CASO2.Data;
+using System;
 
-public class InscripcionesController : Controller
+namespace Practica3_Progra3_CASO2.Controllers
 {
-    private static List<Inscripcion> _inscripciones = new();
-
-    public IActionResult Crear()
+    public class InscripcionController : Controller
     {
-        return View();
-    }
 
-    [HttpPost]
-    public IActionResult Crear(Inscripcion inscripcion)
-    {
-        if (!ModelState.IsValid)
+        public IActionResult Index()
         {
-            return View(inscripcion);
+            var lista = InscripcionRepository.ObtenerInscripciones();
+            return View(lista);
         }
 
-        _inscripciones.Add(inscripcion);
-        ViewBag.Mensaje = "¡Inscripción realizada con éxito!";
+        public IActionResult Crear()
+        {
+            return View(new Inscripcion { FechaTaller = DateTime.Today });
+        }
 
-        return View();
-    }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Crear(Inscripcion inscripcion)
+        {
+            if (inscripcion.FechaTaller.Date < DateTime.Today)
+                ModelState.AddModelError(nameof(inscripcion.FechaTaller), "La fecha del taller no puede ser anterior a la fecha actual.");
+            if (!inscripcion.AceptaTerminos)
+                ModelState.AddModelError(nameof(inscripcion.AceptaTerminos), "Acepte los términos y condiciones para completar la inscripción");
 
-    public IActionResult Lista()
-    {
-        return View(_inscripciones);
+            if (!ModelState.IsValid)
+                return View(inscripcion);
+
+            InscripcionRepository.AgregarInscripcion(inscripcion);
+
+            TempData["SuccessMessage"] = "Inscripción registrada de manera correcta.";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
