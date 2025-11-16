@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Practica3_Progra3_CASO2.Data
 {
-    public class InscripcionRepository
+    public static class InscripcionRepository
     {
         private static List<Inscripcion> _inscripciones = new List<Inscripcion>();
 
-        public void AgregarInscripcion(Inscripcion inscripcion)
+        public static void AgregarInscripcion(Inscripcion inscripcion)
         {
             if (inscripcion != null)
             {
@@ -16,7 +16,7 @@ namespace Practica3_Progra3_CASO2.Data
             }
         }
 
-        public IEnumerable<Inscripcion> ObtenerInscripciones()
+        public static IEnumerable<Inscripcion> ObtenerInscripciones()
         {
             return _inscripciones.AsReadOnly();
         }
